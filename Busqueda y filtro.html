@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo con Filtros</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Barra de filtros */
+        .filtros {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .filtros select,
+        .filtros input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .catalogo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 40px;
+        }
+
+        .producto {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            padding: 20px;
+            transition: transform 0.2s ease;
+        }
+
+        .producto:hover {
+            transform: scale(1.05);
+        }
+
+        .producto img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .producto h3 {
+            margin: 15px 0 10px;
+            font-size: 1.2rem;
+        }
+
+        .producto p {
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Catálogo de Productos</h1>
+    </header>
+
+
+    <div class="filtros">
+        <select id="categoriaFiltro">
+            <option value="all">Todas las categorías</option>
+            <option value="categoria1">categoria1</option>
+            <option value="categoria2">categoria2</option>
+            <option value="categoria3">categoria3</option>
+        </select>
+
+        <input type="text" id="busqueda" placeholder="Buscar producto...">
+    </div>
+
+
+    <section class="catalogo">
+        <div class="producto">
+            <h3>Producto 1</h3>
+            <p>Descripción breve del producto.</p>
+            <a href="#" class="btn">Agregar al carrito</a>
+        </div>
+
+        <div class="producto">
+            <h3>Producto 2</h3>
+            <p>Descripción breve del producto.</p>
+            <a href="#" class="btn">Agregar al carrito</a>
+        </div>
+
+        <div class="producto">
+            <h3>Producto 3</h3>
+            <p>Descripción breve del producto.</p>
+            <a href="#" class="btn">Agregar al carrito</a>
+        </div>
+
+        <div class="producto">
+            <h3>Producto 4</h3>
+            <p>Descripción breve del producto.</p>
+            <a href="#" class="btn">Agregar al carrito</a>
+        </div>
+    </section>
+
+    <script>
+        const categoriaFiltro = document.getElementById("categoriaFiltro");
+        const busqueda = document.getElementById("busqueda");
+        const productos = document.querySelectorAll(".producto");
+
+        function filtrarProductos() {
+            const categoria = categoriaFiltro.value.toLowerCase();
+            const texto = busqueda.value.toLowerCase();
+
+            productos.forEach(producto => {
+                const categoriaProducto = producto.getAttribute("data-categoria");
+                const nombreProducto = producto.getAttribute("data-nombre");
+
+                const coincideCategoria = (categoria === "all" || categoria === categoriaProducto);
+                const coincideTexto = nombreProducto.includes(texto);
+
+                if (coincideCategoria && coincideTexto) {
+                    producto.style.display = "block";
+                } else {
+                    producto.style.display = "none";
+                }
+            });
+        }
+
+        categoriaFiltro.addEventListener("change", filtrarProductos);
+        busqueda.addEventListener("input", filtrarProductos);
+    </script>
+</body>
+
+</html>
