@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmar Dirección</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .formulario-direccion {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .formulario-direccion h2 {
+      margin-top: 0;
+      text-align: center;
+      color: #4CAF50;
+    }
+
+    .formulario-direccion label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    .formulario-direccion input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .btn-confirmar {
+      background: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      margin-top: 20px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+    }
+
+    .btn-confirmar:hover {
+      background: #45a049;
+    }
+  </style>
+</head>
+
+<body>
+  <section class="formulario-direccion">
+    <h2>Confirmar Dirección</h2>
+    <form id="formDireccion">
+      <label for="direccion">Dirección</label>
+      <input type="text" id="direccion" name="direccion" placeholder="Ej: Av. Siempre Viva" required>
+
+      <label for="comuna">Comuna</label>
+      <input type="text" id="comuna" name="comuna" placeholder="Ej: Santiago Centro" required>
+
+      <label for="calle">Calle</label>
+      <input type="text" id="calle" name="calle" placeholder="Ej: Los Pinos" required>
+
+      <label for="numero">Número</label>
+      <input type="text" id="numero" name="numero" placeholder="Ej: 1234" required>
+
+      <button type="submit" class="btn-confirmar">Confirmar Dirección</button>
+    </form>
+  </section>
+
+  <script>
+    document.getElementById("formDireccion").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const direccion = document.getElementById("direccion").value;
+      const comuna = document.getElementById("comuna").value;
+      const calle = document.getElementById("calle").value;
+      const numero = document.getElementById("numero").value;
+
+      if (!direccion || !comuna || !calle || !numero) {
+        alert("⚠️ Por favor completa todos los campos.");
+        return;
+      }
+
+      alert(`📦 Dirección confirmada:\n${direccion}, ${calle} ${numero}, ${comuna}`);
+      
+      this.reset(); 
+    });
+  </script>
+</body>
+
+</html>

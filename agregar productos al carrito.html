@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo con Carrito</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f4f9;
+        }
+
+        header {
+            background: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .contenedor {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        
+        .catalogo {
+            flex: 3;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .producto {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .producto img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .producto h3 {
+            margin: 10px 0;
+        }
+
+        .btn {
+            background: #4CAF50;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #45a049;
+        }
+
+       
+        .carrito {
+            flex: 1;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .carrito h2 {
+            margin-top: 0;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .item-carrito {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        .total {
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Carrito</h1>
+    </header>
+
+    <div class="contenedor">
+       
+        <section class="catalogo">
+            <div class="producto" data-nombre="producto1" data-precio="15000">
+                
+                <h3>producto1</h3>
+                <p>$15.000</p>
+                <button class="btn agregar">Agregar al carrito</button>
+            </div>
+
+            <div class="producto" data-nombre="producto2" data-precio="20000">
+                
+                <h3>producto2</h3>
+                <p>$20.000</p>
+                <button class="btn agregar">Agregar al carrito</button>
+            </div>
+
+            <div class="producto" data-nombre="producto3" data-precio="500000">
+                
+                <h3>producto3</h3>
+                <p>$500.000</p>
+                <button class="btn agregar">Agregar al carrito</button>
+            </div>
+
+            <div class="producto" data-nombre="producto4" data-precio="35000">
+                
+                <h3>producto4</h3>
+                <p>$35.000</p>
+                <button class="btn agregar">Agregar al carrito</button>
+            </div>
+        </section>
+
+       
+        <aside class="carrito">
+            <h2>Carrito</h2>
+            <div id="itemsCarrito"></div>
+            <p class="total">Total: $<span id="total">0</span></p>
+        </aside>
+    </div>
+
+    <script>
+        const botonesAgregar = document.querySelectorAll(".agregar");
+        const itemsCarrito = document.getElementById("itemsCarrito");
+        const totalElemento = document.getElementById("total");
+        let total = 0;
+
+        botonesAgregar.forEach(boton => {
+            boton.addEventListener("click", () => {
+                const producto = boton.parentElement;
+                const nombre = producto.getAttribute("data-nombre");
+                const precio = parseInt(producto.getAttribute("data-precio"));
+
+                
+                const item = document.createElement("div");
+                item.classList.add("item-carrito");
+                item.innerHTML = `
+                    <span>${nombre}</span>
+                    <span>$${precio.toLocaleString()}</span>
+                `;
+
+                itemsCarrito.appendChild(item);
+
+               
+                total += precio;
+                totalElemento.textContent = total.toLocaleString();
+            });
+        });
+    </script>
+</body>
+
+</html>

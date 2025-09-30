@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrito con Resumen</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+    }
+
+    header {
+      background: #4CAF50;
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .contenedor {
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+    }
+
+ 
+    .catalogo {
+      flex: 3;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .producto {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .producto img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .btn {
+      background: #4CAF50;
+      color: white;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .btn:hover {
+      background: #45a049;
+    }
+
+    
+    .carrito {
+      flex: 1;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .item-carrito {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+    }
+
+    .controles {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-peq {
+      background: #ccc;
+      border: none;
+      padding: 5px 8px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .btn-peq:hover {
+      background: #999;
+      color: white;
+    }
+
+    .total {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+   
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-contenido {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+    }
+
+    .modal-contenido h2 {
+      margin-top: 0;
+    }
+
+    .modal-contenido table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    .modal-contenido th,
+    .modal-contenido td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .cerrar {
+      float: right;
+      cursor: pointer;
+      font-weight: bold;
+      color: red;
+    }
+
+    .btn-confirmar {
+      background: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      margin-top: 15px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .btn-confirmar:hover {
+      background: #45a049;
+    }
+
+    
+    .btn-webpay {
+      background: #0078d4;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      margin-top: 10px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .btn-webpay:hover {
+      background: #005fa3;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Resumen de Pedido</h1>
+  </header>
+
+  <div class="contenedor">
+  
+    <section class="catalogo">
+      <div class="producto" data-nombre="producto1" data-precio="15000">
+        <h3>producto1</h3>
+        <p>$15.000</p>
+        <button class="btn agregar">Agregar al carrito</button>
+      </div>
+
+      <div class="producto" data-nombre="producto2" data-precio="20000">
+        <h3>producto2</h3>
+        <p>$20.000</p>
+        <button class="btn agregar">Agregar al carrito</button>
+      </div>
+
+      <div class="producto" data-nombre="producto3" data-precio="500000">
+        <h3>producto3</h3>
+        <p>$500.000</p>
+        <button class="btn agregar">Agregar al carrito</button>
+      </div>
+
+      <div class="producto" data-nombre="producto4" data-precio="35000">
+        <h3>producto4</h3>
+        <p>$35.000</p>
+        <button class="btn agregar">Agregar al carrito</button>
+      </div>
+    </section>
+
+    
+    <aside class="carrito">
+      <h2>Carrito</h2>
+      <div id="itemsCarrito"></div>
+      <p class="total">Total: $<span id="total">0</span></p>
+      <button id="btnResumen" class="btn">Ver Resumen</button>
+    </aside>
+  </div>
+
+  
+  <div id="modalResumen" class="modal">
+    <div class="modal-contenido">
+      <span class="cerrar">&times;</span>
+      <h2>Resumen del Pedido</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cant.</th>
+            <th>Precio</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody id="tablaResumen"></tbody>
+      </table>
+      <p class="total">Total: $<span id="totalResumen">0</span></p>
+      <button class="btn-confirmar">Confirmar Pedido</button>
+      <button class="btn-webpay" id="btnWebpay">Pagar con Webpay</button>
+    </div>
+  </div>
+
+  <script>
+    const botonesAgregar = document.querySelectorAll(".agregar");
+    const itemsCarrito = document.getElementById("itemsCarrito");
+    const totalElemento = document.getElementById("total");
+
+    const modal = document.getElementById("modalResumen");
+    const cerrarModal = document.querySelector(".cerrar");
+    const tablaResumen = document.getElementById("tablaResumen");
+    const totalResumen = document.getElementById("totalResumen");
+    const btnResumen = document.getElementById("btnResumen");
+    const btnWebpay = document.getElementById("btnWebpay");
+
+    let carrito = {};
+
+    function actualizarCarrito() {
+      itemsCarrito.innerHTML = "";
+      let total = 0;
+
+      for (let nombre in carrito) {
+        const item = carrito[nombre];
+        const subtotal = item.precio * item.cantidad;
+        total += subtotal;
+
+        const div = document.createElement("div");
+        div.classList.add("item-carrito");
+        div.innerHTML = `
+          <span>${nombre} - $${item.precio.toLocaleString()}</span>
+          <div class="controles">
+            <button class="btn-peq restar">-</button>
+            <span>${item.cantidad}</span>
+            <button class="btn-peq sumar">+</button>
+            <button class="btn-peq eliminar">X</button>
+          </div>
+        `;
+
+        div.querySelector(".sumar").addEventListener("click", () => {
+          carrito[nombre].cantidad++;
+          actualizarCarrito();
+        });
+
+        div.querySelector(".restar").addEventListener("click", () => {
+          carrito[nombre].cantidad--;
+          if (carrito[nombre].cantidad <= 0) delete carrito[nombre];
+          actualizarCarrito();
+        });
+
+        div.querySelector(".eliminar").addEventListener("click", () => {
+          delete carrito[nombre];
+          actualizarCarrito();
+        });
+
+        itemsCarrito.appendChild(div);
+      }
+
+      totalElemento.textContent = total.toLocaleString();
+    }
+
+    botonesAgregar.forEach(boton => {
+      boton.addEventListener("click", () => {
+        const producto = boton.parentElement;
+        const nombre = producto.getAttribute("data-nombre");
+        const precio = parseInt(producto.getAttribute("data-precio"));
+
+        if (carrito[nombre]) carrito[nombre].cantidad++;
+        else carrito[nombre] = { precio, cantidad: 1 };
+
+        actualizarCarrito();
+      });
+    });
+
+   
+    btnResumen.addEventListener("click", () => {
+      tablaResumen.innerHTML = "";
+      let total = 0;
+
+      for (let nombre in carrito) {
+        const item = carrito[nombre];
+        const subtotal = item.precio * item.cantidad;
+        total += subtotal;
+
+        const fila = document.createElement("tr");
+        fila.innerHTML = `
+          <td>${nombre}</td>
+          <td>${item.cantidad}</td>
+          <td>$${item.precio.toLocaleString()}</td>
+          <td>$${subtotal.toLocaleString()}</td>
+        `;
+        tablaResumen.appendChild(fila);
+      }
+
+      totalResumen.textContent = total.toLocaleString();
+      modal.style.display = "flex";
+    });
+
+    
+    cerrarModal.addEventListener("click", () => modal.style.display = "none");
+    window.addEventListener("click", e => {
+      if (e.target === modal) modal.style.display = "none";
+    });
+
+    
+    btnWebpay.addEventListener("click", () => {
+      alert("Redirigiendo a Webpay...");
+    });
+  </script>
+</body>
+
+</html>
