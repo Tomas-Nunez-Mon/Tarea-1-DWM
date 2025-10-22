@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración de Pedidos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #f4f7f9;
+            color: #333;
+        }
+
+        #login-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #007bff;
+            color: white;
+            text-align: center;
+        }
+
+        #login-screen h1 {
+            margin-bottom: 20px;
+        }
+
+        #login-screen input {
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            width: 250px;
+        }
+
+        #login-screen button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #login-screen button:hover {
+            background-color: #218838;
+        }
+
+        #admin-hub {
+            display: none;
+            padding: 20px;
+        }
+
+        #admin-hub h1 {
+            color: #007bff;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .controles-pedido {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .controles-pedido select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .controles-pedido input {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .tabla-pedidos {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .tabla-pedidos th,
+        .tabla-pedidos td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tabla-pedidos th {
+            background-color: #007bff;
+            color: white;
+            font-weight: 600;
+        }
+
+        .tabla-pedidos tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .estado-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .estado-pendiente { background-color: #ffc107; color: #333; }
+        .estado-enviado { background-color: #007bff; color: white; }
+        .estado-entregado { background-color: #28a745; color: white; }
+        .estado-cancelado { background-color: #dc3545; color: white; }
+        
+        .btn-accion {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-accion:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="login-screen">
+        <h1>Acceso Administrador 🔑</h1>
+        <p>Introduce la clave para acceder al panel.</p>
+        <input type="password" id="adminPassword" placeholder="Contraseña">
+        <button onclick="checkAdminAccess()">Acceder al Hub</button>
+        <p style="margin-top: 15px; font-size: 0.9em;">*Clave de acceso de ejemplo: **12345**</p>
+    </div>
+
+    <div id="admin-hub">
+        <h1>Dashboard de Pedidos 📈</h1>
+        
+        <div class="controles-pedido">
+            <label for="filtroEstado">Filtrar por Estado:</label>
+            <select id="filtroEstado" onchange="renderPedidos()">
+                <option value="todos">Todos</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Enviado">Enviado</option>
+                <option value="Entregado">Entregado</option>
+                <option value="Cancelado">Cancelado</option>
+            </select>
+            
+            <input type="text" id="filtroBusqueda" onkeyup="renderPedidos()" placeholder="Buscar por Cliente o Dirección...">
+            
+            <button class="btn-accion" onclick="renderPedidos()">Actualizar (Simulado)</button>
+        </div>
+
+        <table class="tabla-pedidos">
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Total</th>
+                    <th>Dirección de Envío</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="listaPedidos">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const ADMIN_PASS = "12345"; 
+
+        function checkAdminAccess() {
+            const input = document.getElementById('adminPassword').value;
+            if (input === ADMIN_PASS) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-hub').style.display = 'block';
+                renderPedidos();
+            } else {
+                alert("❌ Contraseña incorrecta. Intenta de nuevo.");
+            }
+        }
+        
+        let pedidos = [
+            // Se mantiene el 'id' internamente para poder manipular el objeto, aunque no se muestre.
+            // Se asume la Comuna es fija o no relevante para la visualización simplificada.
+            { id: "P001", cliente: "Ana López", total: 45000, direccion: "Av. Siempre Viva 123", estado: "Entregado", fecha: "2025-10-20" },
+            { id: "P002", cliente: "Benito Díaz", total: 150000, direccion: "Los Pinos 456 Depto B", estado: "Enviado", fecha: "2025-10-21" },
+            { id: "P003", cliente: "Carlos Ruiz", total: 7500, direccion: "Calle Central 789", estado: "Pendiente", fecha: "2025-10-21" },
+            { id: "P004", cliente: "Diana Soto", total: 600000, direccion: "Avenida Principal 1010", estado: "Pendiente", fecha: "2025-10-19" },
+            { id: "P005", cliente: "Emilio Vargas", total: 20000, direccion: "Pasaje Tulipán 50", estado: "Cancelado", fecha: "2025-10-18" },
+        ];
+
+        function getEstadoBadge(estado) {
+            let clase = "";
+            switch (estado) {
+                case "Pendiente": clase = "estado-pendiente"; break;
+                case "Enviado": clase = "estado-enviado"; break;
+                case "Entregado": clase = "estado-entregado"; break;
+                case "Cancelado": clase = "estado-cancelado"; break;
+                default: clase = "estado-pendiente";
+            }
+            return `<span class="estado-badge ${clase}">${estado}</span>`;
+        }
+
+        function cambiarEstado(id, nuevoEstado) {
+            const pedido = pedidos.find(p => p.id === id);
+            if (pedido) {
+                alert(`✅ Pedido (ID interno: ${id}) cambiado a: ${nuevoEstado}`);
+                pedido.estado = nuevoEstado;
+                renderPedidos();
+            }
+        }
+
+        function renderPedidos() {
+            const listaPedidos = document.getElementById('listaPedidos');
+            const filtroEstado = document.getElementById('filtroEstado').value;
+            const filtroBusqueda = document.getElementById('filtroBusqueda').value.toLowerCase();
+            let html = '';
+
+            const pedidosFiltrados = pedidos.filter(pedido => {
+                const coincideEstado = filtroEstado === 'todos' || pedido.estado === filtroEstado;
+                const coincideBusqueda = 
+                    pedido.cliente.toLowerCase().includes(filtroBusqueda) ||
+                    pedido.direccion.toLowerCase().includes(filtroBusqueda);
+                
+                return coincideEstado && coincideBusqueda;
+            });
+
+
+            pedidosFiltrados.forEach(pedido => {
+                const acciones = `
+                    <button class="btn-accion" onclick="alert('Detalle del Pedido de ${pedido.cliente}')">Ver Detalle</button>
+                    <button class="btn-accion" onclick="cambiarEstado('${pedido.id}', 'Enviado')">Enviar</button>
+                    <button class="btn-accion" onclick="cambiarEstado('${pedido.id}', 'Entregado')">Finalizar</button>
+                `;
+
+                html += `
+                    <tr>
+                        <td>${pedido.cliente}</td>
+                        <td>$${pedido.total.toLocaleString('es-CL')}</td>
+                        <td>${pedido.direccion}</td>
+                        <td>${getEstadoBadge(pedido.estado)}</td>
+                        <td>${pedido.fecha}</td>
+                        <td>${acciones}</td>
+                    </tr>
+                `;
+            });
+
+            listaPedidos.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

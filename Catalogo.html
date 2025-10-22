@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo, Dirección y Opciones de Pago (Webpay/Transferencia)</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        header {
+            background-color: lightskyblue;
+            color: black;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .contenedor {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        /* CATÁLOGO: Ocupa 3 partes del espacio */
+        .catalogo {
+            flex: 3; 
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            padding: 0;
+        }
+
+        .producto {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .producto:hover {
+            transform: scale(1.02);
+        }
+
+        .btn {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background: #45a049;
+        }
+        
+        /* CARRITO: Ocupa 1 parte del espacio (más pequeño) */
+        .carrito {
+            flex: 1; 
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .item-carrito {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+        }
+
+        .controles {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-peq {
+            background: #ccc;
+            border: none;
+            padding: 5px 8px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .total {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+
+        /* ESTILOS MODALES (DIRECCIÓN Y RESUMEN) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* MODAL TRANSFERENCIA: Z-index más alto */
+        #modalTransferencia {
+            z-index: 2000;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-contenido {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 450px; 
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .cerrar {
+            float: right;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: #aaa;
+        }
+
+        /* DIRECCIÓN FORM STYLES */
+        .formulario-direccion label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .formulario-direccion input {
+            width: 95%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        
+        /* RESUMEN TABLE STYLES */
+        #modalResumen table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        #modalResumen th,
+        #modalResumen td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        #direccionMostrada {
+            border: 1px solid #eee;
+            padding: 10px;
+            margin: 10px 0;
+            background: #f9f9f9;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        /* OPCIONES DE PAGO STYLES */
+        .btn-pago-opcion {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .btn-webpay {
+            background: #0078d4;
+            color: white;
+        }
+        .btn-webpay:hover {
+            background: #005fa3;
+        }
+
+        .btn-transferencia {
+            background: #f7a81b; 
+            color: white;
+        }
+        .btn-transferencia:hover {
+            background: #e39600;
+        }
+        
+        /* TRANSFERENCIA MODAL CONTENT */
+        #modalTransferencia ul {
+            list-style: none;
+            padding: 0;
+            border: 1px solid #eee;
+            padding: 15px;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        #modalTransferencia ul li {
+            margin-bottom: 8px;
+        }
+        #modalTransferencia strong {
+            display: inline-block;
+            width: 120px;
+        }
+        #modalTransferencia input[type="file"] {
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Catálogo de Productos</h1>
+    </header>
+
+    <div class="contenedor">
+        
+        <section class="catalogo" id="listaCatalogo">
+            <div class="producto" data-nombre="Producto 1" data-precio="15000">
+                <h3>Producto 1</h3>
+                <p>$15.000</p>
+                <button class="btn agregar">Agregar al carrito</button>
+            </div>
+
+            <div class="producto" data-nombre="Producto 2" data-precio="20000">
+                <h3>Producto 2</h3>
+                <p>$20.000</p>
+                <button class="btn agregar">Agregar al carrito</button>
+            </div>
+
+            <div class="producto" data-nombre="Producto 3" data-precio="500000">
+                <h3>Producto 3</h3>
+                <p>$500.000</p>
+                <button class="btn agregar">Agregar al carrito</button>
+            </div>
+
+            <div class="producto" data-nombre="Producto 4" data-precio="35000">
+                <h3>Producto 4</h3>
+                <p>$35.000</p>
+                <button class="btn agregar">Agregar al carrito</button>
+            </div>
+        </section>
+
+        <aside class="carrito">
+            <h2>Carrito</h2>
+            <div id="itemsCarrito"></div>
+            <p class="total">Total: $<span id="total">0</span></p>
+            <button id="btnCheckout" class="btn">Continuar al Pago</button>
+        </aside>
+    </div>
+
+    <div id="modalDireccion" class="modal">
+        <div class="modal-contenido formulario-direccion">
+            <span class="cerrar" data-modal="direccion">&times;</span>
+            <h2>Ingresar Dirección de Envío</h2>
+            <form id="formDireccion">
+                <label for="direccion">Dirección</label>
+                <input type="text" id="direccion" name="direccion" placeholder="Ej: Av. Siempre Viva" required>
+
+                <label for="comuna">Comuna</label>
+                <input type="text" id="comuna" name="comuna" placeholder="Ej: Santiago Centro" required>
+
+                <label for="calle">Calle</label>
+                <input type="text" id="calle" name="calle" placeholder="Ej: Los Pinos" required>
+
+                <label for="numero">Número</label>
+                <input type="text" id="numero" name="numero" placeholder="Ej: 1234" required>
+
+                <button type="submit" class="btn">Confirmar Dirección</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalResumen" class="modal">
+        <div class="modal-contenido">
+            <span class="cerrar" data-modal="resumen">&times;</span>
+            <h2>Resumen del Pedido</h2>
+            <div id="direccionMostrada"></div> 
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cant.</th>
+                        <th>Precio Unitario</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaResumen"></tbody>
+            </table>
+            <p class="total">Total a Pagar: $<span id="totalResumen">0</span></p>
+            
+            <hr style="margin: 20px 0;">
+            <p style="font-weight: bold; text-align: center;">Selecciona tu método de pago:</p>
+            
+            <button id="btnWebpay" class="btn-pago-opcion btn-webpay">Pagar con Webpay (Simulación)</button>
+            <button id="btnTransferencia" class="btn-pago-opcion btn-transferencia">Pagar con Transferencia Bancaria</button>
+        </div>
+    </div>
+    
+    <div id="modalTransferencia" class="modal">
+        <div class="modal-contenido">
+            <span class="cerrar" data-modal="transferencia">&times;</span>
+            <h3>Datos para Transferencia</h3>
+            <ul>
+                <li><strong>Banco:</strong> Banco de Chile</li>
+                <li><strong>Tipo de Cuenta:</strong> Cuenta Corriente</li>
+                <li><strong>Número de Cuenta:</strong> 123456789</li>
+                <li><strong>RUT:</strong> 11.111.111-1</li>
+                <li><strong>Nombre:</strong> Juan Pérez</li>
+                <li><strong>Correo:</strong> pagos@mitienda.cl</li>
+            </ul>
+            <label for="comprobante"><strong>Adjuntar comprobante:</strong></label>
+            <input type="file" id="comprobante" accept=".pdf,.png,.jpg">
+            <button class="btn" style="width: 100%; margin-top: 15px;" id="btnConfirmarTransferencia">Hecho (Simular Cierre de Pedido)</button>
+        </div>
+    </div>
+
+    <script>
+        const botonesAgregar = document.querySelectorAll(".agregar");
+        const itemsCarrito = document.getElementById("itemsCarrito");
+        const totalElemento = document.getElementById("total");
+        const btnCheckout = document.getElementById("btnCheckout");
+
+        const modalDireccion = document.getElementById("modalDireccion");
+        const formDireccion = document.getElementById("formDireccion");
+        
+        const modalResumen = document.getElementById("modalResumen");
+        const tablaResumen = document.getElementById("tablaResumen");
+        const totalResumen = document.getElementById("totalResumen");
+        const direccionMostrada = document.getElementById("direccionMostrada");
+        
+        const btnWebpay = document.getElementById("btnWebpay");
+        const btnTransferencia = document.getElementById("btnTransferencia");
+        
+        const modalTransferencia = document.getElementById("modalTransferencia");
+        const btnConfirmarTransferencia = document.getElementById("btnConfirmarTransferencia");
+
+        const botonesCerrar = document.querySelectorAll(".cerrar");
+
+        let carrito = {}; 
+        let direccionConfirmada = "";
+
+        // -- FUNCIONES DEL CARRITO --
+        function actualizarCarrito() {
+            itemsCarrito.innerHTML = "";
+            let total = 0;
+
+            for (let nombre in carrito) {
+                const item = carrito[nombre];
+                const subtotal = item.precio * item.cantidad;
+                total += subtotal;
+
+                const div = document.createElement("div");
+                div.classList.add("item-carrito");
+                div.innerHTML = `
+                    <span>${nombre} (x${item.cantidad})</span>
+                    <div class="controles">
+                        <button class="btn-peq restar" data-nombre="${nombre}">-</button>
+                        <span class="cantidad">${item.cantidad}</span>
+                        <button class="btn-peq sumar" data-nombre="${nombre}">+</button>
+                        <button class="btn-peq eliminar" data-nombre="${nombre}">X</button>
+                    </div>
+                `;
+                
+                div.querySelector(".sumar").addEventListener("click", () => {
+                    carrito[nombre].cantidad++;
+                    actualizarCarrito();
+                });
+                div.querySelector(".restar").addEventListener("click", () => {
+                    carrito[nombre].cantidad--;
+                    if (carrito[nombre].cantidad <= 0) delete carrito[nombre];
+                    actualizarCarrito();
+                });
+                div.querySelector(".eliminar").addEventListener("click", () => {
+                    delete carrito[nombre];
+                    actualizarCarrito();
+                });
+
+                itemsCarrito.appendChild(div);
+            }
+
+            totalElemento.textContent = total.toLocaleString();
+            btnCheckout.disabled = Object.keys(carrito).length === 0;
+            btnCheckout.textContent = Object.keys(carrito).length === 0 ? "Carrito Vacío" : "Continuar al Pago";
+        }
+
+        botonesAgregar.forEach(boton => {
+            boton.addEventListener("click", () => {
+                const producto = boton.parentElement;
+                const nombre = producto.getAttribute("data-nombre");
+                const precio = parseFloat(producto.getAttribute("data-precio")); 
+
+                if (carrito[nombre]) carrito[nombre].cantidad++;
+                else carrito[nombre] = { precio, cantidad: 1 };
+                actualizarCarrito();
+            });
+        });
+        
+        // -- FLUJO: PASO 1 (Abrir Dirección) --
+        btnCheckout.addEventListener("click", () => {
+            if (Object.keys(carrito).length === 0) return;
+            modalDireccion.style.display = "flex";
+        });
+        
+        // -- FLUJO: PASO 2 (Confirmar Dirección y Abrir Resumen) --
+        formDireccion.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const d = document.getElementById("direccion").value;
+            const c = document.getElementById("comuna").value;
+            const ca = document.getElementById("calle").value;
+            const n = document.getElementById("numero").value;
+
+            if (!d || !c || !ca || !n) {
+                alert("⚠️ Por favor completa todos los campos.");
+                return;
+            }
+
+            direccionConfirmada = `📦 **Dirección de Envío:** ${d}, ${ca} ${n}, ${c}`;
+            alert(`✅ Dirección confirmada:\n${d}, ${ca} ${n}, ${c}`);
+            
+            modalDireccion.style.display = "none";
+            mostrarResumen(); 
+        });
+
+        // -- FUNCIÓN: Muestra el modal de Resumen y Pago --
+        function mostrarResumen() {
+            tablaResumen.innerHTML = "";
+            let total = 0;
+
+            for (let nombre in carrito) {
+                const item = carrito[nombre];
+                const subtotal = item.precio * item.cantidad;
+                total += subtotal;
+
+                const fila = document.createElement("tr");
+                fila.innerHTML = `
+                    <td>${nombre}</td>
+                    <td>${item.cantidad}</td>
+                    <td>$${item.precio.toLocaleString()}</td>
+                    <td>$${subtotal.toLocaleString()}</td>
+                `;
+                tablaResumen.appendChild(fila);
+            }
+
+            totalResumen.textContent = total.toLocaleString();
+            direccionMostrada.innerHTML = direccionConfirmada; 
+            modalResumen.style.display = "flex";
+        }
+        
+        // -- FLUJO: PASO 3 (Opciones de Pago) --
+        
+        // Opción 1: Webpay (Simulación)
+        btnWebpay.addEventListener("click", () => {
+            alert("Redirigiendo a pasarela Webpay... 🌐 (Simulación de pago exitoso)");
+            modalResumen.style.display = "none";
+            carrito = {};
+            actualizarCarrito();
+        });
+
+        // Opción 2.1: Abrir Modal de Transferencia
+        btnTransferencia.addEventListener("click", () => {
+            modalResumen.style.display = "none";
+            modalTransferencia.style.display = "flex";
+        });
+        
+        // Opción 2.2: Confirmar Transferencia (Simulación)
+        btnConfirmarTransferencia.addEventListener("click", () => {
+            alert("✅ Comprobante adjuntado y Transferencia notificada. Su pedido será procesado al confirmar el pago. (Simulación)");
+            modalTransferencia.style.display = "none";
+            carrito = {};
+            actualizarCarrito();
+        });
+
+        // -- CIERRE DE MODALES --
+        botonesCerrar.forEach(boton => {
+            boton.addEventListener("click", () => {
+                const modalAttr = boton.getAttribute("data-modal");
+                if (modalAttr === "direccion") modalDireccion.style.display = "none";
+                if (modalAttr === "resumen") modalResumen.style.display = "none";
+                if (modalAttr === "transferencia") modalTransferencia.style.display = "none";
+            });
+        });
+
+        window.addEventListener("click", e => {
+            if (e.target === modalDireccion) modalDireccion.style.display = "none";
+            if (e.target === modalResumen) modalResumen.style.display = "none";
+            if (e.target === modalTransferencia) modalTransferencia.style.display = "none";
+        });
+        
+        // Inicializar el carrito
+        actualizarCarrito();
+    </script>
+</body>
+</html>
