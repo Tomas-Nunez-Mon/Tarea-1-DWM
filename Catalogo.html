@@ -366,7 +366,7 @@
         let carrito = {}; 
         let direccionConfirmada = "";
 
-        // -- FUNCIONES DEL CARRITO --
+       
         function actualizarCarrito() {
             itemsCarrito.innerHTML = "";
             let total = 0;
@@ -422,13 +422,13 @@
             });
         });
         
-        // -- FLUJO: PASO 1 (Abrir Dirección) --
+        
         btnCheckout.addEventListener("click", () => {
             if (Object.keys(carrito).length === 0) return;
             modalDireccion.style.display = "flex";
         });
         
-        // -- FLUJO: PASO 2 (Confirmar Dirección y Abrir Resumen) --
+        
         formDireccion.addEventListener("submit", function (e) {
             e.preventDefault();
             const d = document.getElementById("direccion").value;
@@ -448,7 +448,7 @@
             mostrarResumen(); 
         });
 
-        // -- FUNCIÓN: Muestra el modal de Resumen y Pago --
+        
         function mostrarResumen() {
             tablaResumen.innerHTML = "";
             let total = 0;
@@ -473,9 +473,7 @@
             modalResumen.style.display = "flex";
         }
         
-        // -- FLUJO: PASO 3 (Opciones de Pago) --
-        
-        // Opción 1: Webpay (Simulación)
+       
         btnWebpay.addEventListener("click", () => {
             alert("Redirigiendo a pasarela Webpay... 🌐 (Simulación de pago exitoso)");
             modalResumen.style.display = "none";
@@ -483,21 +481,21 @@
             actualizarCarrito();
         });
 
-        // Opción 2.1: Abrir Modal de Transferencia
+        
         btnTransferencia.addEventListener("click", () => {
             modalResumen.style.display = "none";
             modalTransferencia.style.display = "flex";
         });
         
-        // Opción 2.2: Confirmar Transferencia (Simulación)
+        
         btnConfirmarTransferencia.addEventListener("click", () => {
-            alert("✅ Comprobante adjuntado y Transferencia notificada. Su pedido será procesado al confirmar el pago. (Simulación)");
+            alert(" Comprobante adjuntado y Transferencia notificada. Su pedido será procesado al confirmar el pago. (Simulación)");
             modalTransferencia.style.display = "none";
             carrito = {};
             actualizarCarrito();
         });
 
-        // -- CIERRE DE MODALES --
+        
         botonesCerrar.forEach(boton => {
             boton.addEventListener("click", () => {
                 const modalAttr = boton.getAttribute("data-modal");
@@ -513,7 +511,7 @@
             if (e.target === modalTransferencia) modalTransferencia.style.display = "none";
         });
         
-        // Inicializar el carrito
+        
         actualizarCarrito();
     </script>
 </body>
