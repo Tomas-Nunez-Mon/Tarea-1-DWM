@@ -441,8 +441,8 @@
                 return;
             }
 
-            direccionConfirmada = `📦 **Dirección de Envío:** ${d}, ${ca} ${n}, ${c}`;
-            alert(`✅ Dirección confirmada:\n${d}, ${ca} ${n}, ${c}`);
+            direccionConfirmada = ` **Dirección de Envío:** ${d}, ${ca} ${n}, ${c}`;
+            alert(` Dirección confirmada:\n${d}, ${ca} ${n}, ${c}`);
             
             modalDireccion.style.display = "none";
             mostrarResumen(); 
@@ -475,7 +475,7 @@
         
        
         btnWebpay.addEventListener("click", () => {
-            alert("Redirigiendo a pasarela Webpay... 🌐 (Simulación de pago exitoso)");
+            alert("Redirigiendo a pasarela Webpay...  (Simulación de pago exitoso)");
             modalResumen.style.display = "none";
             carrito = {};
             actualizarCarrito();
