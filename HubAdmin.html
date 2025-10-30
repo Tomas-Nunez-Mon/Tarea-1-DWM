@@ -52,122 +52,128 @@
         #admin-hub {
             display: none;
             padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        #admin-hub h1 {
+        h1 {
             color: #007bff;
-            border-bottom: 2px solid #eee;
+            border-bottom: 2px solid #007bff;
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
-        
-        .controles-pedido {
+
+        .filtros-y-busqueda {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             margin-bottom: 20px;
-            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
-        .controles-pedido select {
-            padding: 8px;
-            border-radius: 5px;
+        .filtros-y-busqueda input, 
+        .filtros-y-busqueda select {
+            padding: 10px;
             border: 1px solid #ccc;
-        }
-
-        .controles-pedido input {
-            padding: 8px;
             border-radius: 5px;
-            border: 1px solid #ccc;
+            flex-grow: 1;
         }
 
-        .tabla-pedidos {
+        table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .tabla-pedidos th,
-        .tabla-pedidos td {
+        th, td {
             padding: 12px 15px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
 
-        .tabla-pedidos th {
+        th {
             background-color: #007bff;
             color: white;
-            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
         }
 
-        .tabla-pedidos tr:hover {
+        tr:hover {
             background-color: #f1f1f1;
         }
-        
-        .estado-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.85em;
-            font-weight: bold;
+
+        .badge {
             display: inline-block;
-        }
-
-        .estado-pendiente { background-color: #ffc107; color: #333; }
-        .estado-enviado { background-color: #007bff; color: white; }
-        .estado-entregado { background-color: #28a745; color: white; }
-        .estado-cancelado { background-color: #dc3545; color: white; }
-        
-        .btn-accion {
-            background: #6c757d;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.8rem;
             color: white;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 5px;
-            transition: background-color 0.3s;
         }
 
+        .pendiente { background-color: #ffc107; color: #333; }
+        .enviado { background-color: #17a2b8; }
+        .entregado { background-color: #28a745; }
+        .cancelado { background-color: #dc3545; }
+
+        .btn-accion {
+            padding: 8px 12px;
+            margin-right: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            transition: background-color 0.2s;
+            font-size: 0.85rem;
+        }
+
+        .btn-accion:nth-child(1) { background-color: #6c757d; }
+        .btn-accion:nth-child(2) { background-color: #ffc107; color: #333; }
+        .btn-accion:nth-child(3) { background-color: #28a745; }
+        
         .btn-accion:hover {
-            background-color: #5a6268;
+            filter: brightness(1.1);
         }
     </style>
 </head>
 
 <body>
-
+    
     <div id="login-screen">
-        <h1>Acceso Administrador </h1>
-        <p>Introduce la clave para acceder al panel.</p>
-        <input type="password" id="adminPassword" placeholder="Contraseña">
-        <button onclick="checkAdminAccess()">Acceder al Hub</button>
-        <p style="margin-top: 15px; font-size: 0.9em;">*Clave de acceso de ejemplo: **12345**</p>
+        <h1>Acceso a Administración</h1>
+        <input type="text" id="adminUsuario" placeholder="Usuario Admin" value="admin">
+        <input type="password" id="adminPass" placeholder="Contraseña" value="123456">
+        <button id="btnLoginAdmin">Ingresar</button>
     </div>
 
     <div id="admin-hub">
-        <h1>Dashboard de Pedidos </h1>
+        <header>
+            <h1>Gestión de Pedidos</h1>
+        </header>
         
-        <div class="controles-pedido">
-            <label for="filtroEstado">Filtrar por Estado:</label>
-            <select id="filtroEstado" onchange="renderPedidos()">
-                <option value="todos">Todos</option>
+        <div class="filtros-y-busqueda">
+            <select id="filtroEstado">
+                <option value="todos">Todos los Estados</option>
                 <option value="Pendiente">Pendiente</option>
                 <option value="Enviado">Enviado</option>
                 <option value="Entregado">Entregado</option>
-                <option value="Cancelado">Cancelado</option>
             </select>
-            
-            <input type="text" id="filtroBusqueda" onkeyup="renderPedidos()" placeholder="Buscar por Cliente o Dirección...">
-            
-            <button class="btn-accion" onclick="renderPedidos()">Actualizar (Simulado)</button>
+            <input type="text" id="filtroBusqueda" placeholder="Buscar por Cliente o Dirección...">
+            <button class="btn-accion" style="background-color: #007bff;" onclick="cargarPedidos()">Actualizar Lista</button>
         </div>
 
-        <table class="tabla-pedidos">
+        <table>
             <thead>
                 <tr>
+                    <th>ID Pedido</th>
                     <th>Cliente</th>
                     <th>Total</th>
-                    <th>Dirección de Envío</th>
+                    <th>Dirección (Lat/Lon)</th>
                     <th>Estado</th>
                     <th>Fecha</th>
                     <th>Acciones</th>
@@ -178,87 +184,179 @@
         </table>
     </div>
 
+    <script src="api.js"></script>
     <script>
-        const ADMIN_PASS = "12345"; 
+        const loginScreen = document.getElementById('login-screen');
+        const adminHub = document.getElementById('admin-hub');
+        const listaPedidos = document.getElementById('listaPedidos');
+        const filtroEstado = document.getElementById('filtroEstado');
+        const filtroBusqueda = document.getElementById('filtroBusqueda');
 
-        function checkAdminAccess() {
-            const input = document.getElementById('adminPassword').value;
-            if (input === ADMIN_PASS) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('admin-hub').style.display = 'block';
-                renderPedidos();
+        let pedidos = [];
+
+        const GET_PEDIDOS_QUERY = `
+            query {
+                getPedidos {
+                    id
+                    clienteId
+                    clienteNombre
+                    total
+                    estado
+                    fecha
+                    direccion {
+                        calle
+                        numero
+                        lat
+                        lon
+                    }
+                    items {
+                        nombre
+                        cantidad
+                        precioUnitario
+                    }
+                }
+            }
+        `;
+
+        const CAMBIAR_ESTADO_MUTATION = `
+            mutation CambiarEstadoPedido($id: ID!, $estado: String!) {
+                cambiarEstadoPedido(id: $id, estado: $estado) {
+                    id
+                    estado
+                }
+            }
+        `;
+        
+        document.getElementById('btnLoginAdmin').addEventListener('click', () => {
+            const usuario = document.getElementById('adminUsuario').value;
+            const pass = document.getElementById('adminPass').value;
+
+            if (usuario === 'admin' && pass === '123456') {
+                loginScreen.style.display = 'none';
+                adminHub.style.display = 'block';
+                cargarPedidos();
             } else {
-                alert(" Contraseña incorrecta. Intenta de nuevo.");
+                alert('Credenciales incorrectas. (Usuario: admin, Contraseña: 123456)');
+            }
+        });
+
+        async function cargarPedidos() {
+            listaPedidos.innerHTML = '<tr><td colspan="7" style="text-align: center;">Cargando pedidos...</td></tr>';
+            try {
+                const data = await graphqlRequest(GET_PEDIDOS_QUERY);
+                pedidos = data.getPedidos;
+                renderizarPedidos();
+            } catch (error) {
+                listaPedidos.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">Error al cargar: ${error.message}</td></tr>`;
+            }
+        }
+
+        async function cambiarEstado(id, nuevoEstado) {
+            if (!confirm(`¿Confirma el cambio de estado del pedido ${id.slice(-6)} a "${nuevoEstado}"?`)) {
+                return;
+            }
+
+            try {
+                const variables = { id, estado: nuevoEstado };
+                await graphqlRequest(CAMBIAR_ESTADO_MUTATION, variables);
+                
+                alert(`Estado del pedido ${id.slice(-6)} actualizado a ${nuevoEstado} con éxito.`);
+                
+                cargarPedidos(); 
+
+            } catch (error) {
+                alert('Error al cambiar el estado: ' + error.message);
             }
         }
         
-        let pedidos = [
-           
-            { id: "P001", cliente: "Ana López", total: 45000, direccion: "Av. Siempre Viva 123", estado: "Entregado", fecha: "2025-10-20" },
-            { id: "P002", cliente: "Benito Díaz", total: 150000, direccion: "Los Pinos 456 Depto B", estado: "Enviado", fecha: "2025-10-21" },
-            { id: "P003", cliente: "Carlos Ruiz", total: 7500, direccion: "Calle Central 789", estado: "Pendiente", fecha: "2025-10-21" },
-            { id: "P004", cliente: "Diana Soto", total: 600000, direccion: "Avenida Principal 1010", estado: "Pendiente", fecha: "2025-10-19" },
-            { id: "P005", cliente: "Emilio Vargas", total: 20000, direccion: "Pasaje Tulipán 50", estado: "Cancelado", fecha: "2025-10-18" },
-        ];
-
         function getEstadoBadge(estado) {
-            let clase = "";
-            switch (estado) {
-                case "Pendiente": clase = "estado-pendiente"; break;
-                case "Enviado": clase = "estado-enviado"; break;
-                case "Entregado": clase = "estado-entregado"; break;
-                case "Cancelado": clase = "estado-cancelado"; break;
-                default: clase = "estado-pendiente";
-            }
-            return `<span class="estado-badge ${clase}">${estado}</span>`;
+            let clase = '';
+            if (estado === 'Pendiente') clase = 'pendiente';
+            else if (estado === 'Enviado') clase = 'enviado';
+            else if (estado === 'Entregado') clase = 'entregado';
+            else if (estado === 'Cancelado') clase = 'cancelado';
+            else clase = 'pendiente';
+
+            return `<span class="badge ${clase}">${estado}</span>`;
+        }
+        
+        function verDetalle(pedido) {
+            let detalleItems = pedido.items.map(item => 
+                `<li>${item.nombre} (x${item.cantidad}) - $${item.precioUnitario.toLocaleString('es-CL')}</li>`
+            ).join('');
+
+            alert(`
+                DETALLE DEL PEDIDO ${pedido.id.slice(-6)}:
+
+                Cliente: ${pedido.clienteNombre}
+                Total: $${pedido.total.toLocaleString('es-CL')}
+                Dirección: ${pedido.direccion.calle} ${pedido.direccion.numero} (Lat: ${pedido.direccion.lat}, Lon: ${pedido.direccion.lon})
+                Fecha: ${new Date(pedido.fecha).toLocaleDateString()}
+                
+                Productos:
+                ${detalleItems}
+            `);
         }
 
-        function cambiarEstado(id, nuevoEstado) {
-            const pedido = pedidos.find(p => p.id === id);
-            if (pedido) {
-                alert(` Pedido (ID interno: ${id}) cambiado a: ${nuevoEstado}`);
-                pedido.estado = nuevoEstado;
-                renderPedidos();
-            }
-        }
 
-        function renderPedidos() {
-            const listaPedidos = document.getElementById('listaPedidos');
-            const filtroEstado = document.getElementById('filtroEstado').value;
-            const filtroBusqueda = document.getElementById('filtroBusqueda').value.toLowerCase();
+        function renderizarPedidos() {
+            const filtroE = filtroEstado.value;
+            const filtroB = filtroBusqueda.value.toLowerCase();
             let html = '';
 
             const pedidosFiltrados = pedidos.filter(pedido => {
-                const coincideEstado = filtroEstado === 'todos' || pedido.estado === filtroEstado;
+                const coincideEstado = filtroE === 'todos' || pedido.estado === filtroE;
+                
+                const clienteNombre = pedido.clienteNombre ? pedido.clienteNombre.toLowerCase() : 'N/A';
+                const direccionStr = `${pedido.direccion.calle} ${pedido.direccion.numero} ${pedido.direccion.lat} ${pedido.direccion.lon}`;
+
                 const coincideBusqueda = 
-                    pedido.cliente.toLowerCase().includes(filtroBusqueda) ||
-                    pedido.direccion.toLowerCase().includes(filtroBusqueda);
+                    clienteNombre.includes(filtroB) ||
+                    direccionStr.toLowerCase().includes(filtroB) ||
+                    pedido.id.toLowerCase().includes(filtroB);
                 
                 return coincideEstado && coincideBusqueda;
             });
 
 
-            pedidosFiltrados.forEach(pedido => {
-                const acciones = `
-                    <button class="btn-accion" onclick="alert('Detalle del Pedido de ${pedido.cliente}')">Ver Detalle</button>
-                    <button class="btn-accion" onclick="cambiarEstado('${pedido.id}', 'Enviado')">Enviar</button>
-                    <button class="btn-accion" onclick="cambiarEstado('${pedido.id}', 'Entregado')">Finalizar</button>
-                `;
+            if (pedidosFiltrados.length === 0) {
+                html = '<tr><td colspan="7" style="text-align: center;">No se encontraron pedidos con los filtros aplicados.</td></tr>';
+            } else {
+                pedidosFiltrados.forEach(pedido => {
+                    const id = pedido.id;
+                    const nombreCliente = pedido.clienteNombre || 'Usuario ID: ' + pedido.clienteId.slice(-6);
+                    const estado = pedido.estado;
+                    const fecha = new Date(pedido.fecha).toLocaleDateString('es-CL', { year: 'numeric', month: 'short', day: 'numeric' });
+                    const direccionDisplay = `${pedido.direccion.calle} ${pedido.direccion.numero} (${pedido.direccion.lat}, ${pedido.direccion.lon})`;
 
-                html += `
-                    <tr>
-                        <td>${pedido.cliente}</td>
-                        <td>$${pedido.total.toLocaleString('es-CL')}</td>
-                        <td>${pedido.direccion}</td>
-                        <td>${getEstadoBadge(pedido.estado)}</td>
-                        <td>${pedido.fecha}</td>
-                        <td>${acciones}</td>
-                    </tr>
-                `;
-            });
+                    let acciones = `<button class="btn-accion" onclick='verDetalle(${JSON.stringify(pedido)})'>Ver Detalle</button>`;
+                    
+                    if (estado === 'Pendiente') {
+                        acciones += `<button class="btn-accion" onclick="cambiarEstado('${id}', 'Enviado')">Enviar Pedido</button>`;
+                    } else if (estado === 'Enviado') {
+                        acciones += `<button class="btn-accion" onclick="cambiarEstado('${id}', 'Entregado')">Finalizar Entrega</button>`;
+                    }
+
+                    html += `
+                        <tr>
+                            <td>${id.slice(-6)}</td>
+                            <td>${nombreCliente}</td>
+                            <td>$${pedido.total.toLocaleString('es-CL')}</td>
+                            <td>${direccionDisplay}</td>
+                            <td>${getEstadoBadge(estado)}</td>
+                            <td>${fecha}</td>
+                            <td>${acciones}</td>
+                        </tr>
+                    `;
+                });
+            }
 
             listaPedidos.innerHTML = html;
         }
+        
+        filtroEstado.addEventListener('change', renderizarPedidos);
+        filtroBusqueda.addEventListener('input', renderizarPedidos);
+
     </script>
 </body>
 </html>

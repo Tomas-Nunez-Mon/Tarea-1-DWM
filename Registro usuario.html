@@ -57,19 +57,19 @@
 
 <body>
     <div class="wrapper">
-        <form action="">
+        <form id="registroForm">
             <h1>Registro usuario</h1>
 
             <div class="input-box">
-                <input type="text" placeholder="Nombre Usuario" required>
+                <input type="text" id="nombreInput" placeholder="Nombre Usuario" required>
             </div>
 
             <div class="input-box">
-                <input type="text" placeholder="Email" required>
+                <input type="text" id="emailInput" placeholder="Email" required>
             </div>
 
             <div class="input-box">
-                <input type="password" placeholder="Contraseña" required>
+                <input type="password" id="passInput" placeholder="Contraseña" required>
             </div>
 
             <div class="input-box">
@@ -77,8 +77,53 @@
             </div>
 
             <button type="submit" class="btn">Registrar</button>
-
         </form>
     </div>
+    <script src="api.js"></script> 
+    
+    <script>
+        const form = document.getElementById('registroForm');
+        
+        
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault(); 
+
+            const nombre = document.getElementById('nombreInput').value.trim();
+            const email = document.getElementById('emailInput').value.trim();
+            const pass = document.getElementById('passInput').value.trim();
+
+            
+            const ADD_USUARIO_MUTATION = `
+                mutation AddUser($input: UsuarioInput!) {
+                    addUsuario(input: $input) {
+                        id
+                        nombre
+                    }
+                }
+            `;
+
+            try {
+                const variables = {
+                    input: {
+                        nombre: nombre,
+                        email: email,
+                        pass: pass
+                    }
+                };
+
+                
+                const data = await graphqlRequest(ADD_USUARIO_MUTATION, variables);
+                
+                
+                alert('Registro exitoso!, ' + data.addUsuario.nombre);
+                window.location.href = 'Inicio sesion.html'; 
+
+            } catch (error) {
+                
+                alert('Error al registrar usuario: ' + error.message);
+                console.error('Detalles del error:', error);
+            }
+        });
+    </script>
 </body>
 </html>

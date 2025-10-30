@@ -26,7 +26,6 @@
             padding: 20px;
         }
         
-        
         .catalogo {
             flex: 3; 
             display: grid;
@@ -62,7 +61,15 @@
             background: #45a049;
         }
         
-       
+        .stock-cero {
+            color: red;
+            font-weight: bold;
+        }
+
+        .stock-ok {
+            color: green;
+        }
+        
         .carrito {
             flex: 1; 
             background: white;
@@ -102,7 +109,6 @@
             font-size: 1.3rem;
         }
 
-        
         .modal {
             display: none;
             position: fixed;
@@ -115,7 +121,6 @@
             justify-content: center;
             align-items: center;
         }
-        
         
         #modalTransferencia {
             z-index: 2000;
@@ -141,7 +146,6 @@
             color: #aaa;
         }
 
-        
         .formulario-direccion label {
             display: block;
             margin-top: 15px;
@@ -156,7 +160,6 @@
             border-radius: 5px;
         }
         
-       
         #modalResumen table {
             width: 100%;
             border-collapse: collapse;
@@ -178,8 +181,7 @@
             border-radius: 5px;
             font-weight: bold;
         }
-
-       
+        
         .btn-pago-opcion {
             padding: 12px 15px;
             border: none;
@@ -207,7 +209,6 @@
             background: #e39600;
         }
         
-       
         #modalTransferencia ul {
             list-style: none;
             padding: 0;
@@ -242,34 +243,14 @@
     <div class="contenedor">
         
         <section class="catalogo" id="listaCatalogo">
-            <div class="producto" data-nombre="Producto 1" data-precio="15000">
-                <h3>Producto 1</h3>
-                <p>$15.000</p>
-                <button class="btn agregar">Agregar al carrito</button>
-            </div>
-
-            <div class="producto" data-nombre="Producto 2" data-precio="20000">
-                <h3>Producto 2</h3>
-                <p>$20.000</p>
-                <button class="btn agregar">Agregar al carrito</button>
-            </div>
-
-            <div class="producto" data-nombre="Producto 3" data-precio="500000">
-                <h3>Producto 3</h3>
-                <p>$500.000</p>
-                <button class="btn agregar">Agregar al carrito</button>
-            </div>
-
-            <div class="producto" data-nombre="Producto 4" data-precio="35000">
-                <h3>Producto 4</h3>
-                <p>$35.000</p>
-                <button class="btn agregar">Agregar al carrito</button>
-            </div>
+            
         </section>
 
         <aside class="carrito">
             <h2>Carrito</h2>
-            <div id="itemsCarrito"></div>
+            <ul id="itemsCarrito">
+                
+            </ul>
             <p class="total">Total: $<span id="total">0</span></p>
             <button id="btnCheckout" class="btn">Continuar al Pago</button>
         </aside>
@@ -278,19 +259,19 @@
     <div id="modalDireccion" class="modal">
         <div class="modal-contenido formulario-direccion">
             <span class="cerrar" data-modal="direccion">&times;</span>
-            <h2>Ingresar Dirección de Envío</h2>
+            <h2>Ingresar Coordenadas de Envío</h2>
             <form id="formDireccion">
-                <label for="direccion">Dirección</label>
-                <input type="text" id="direccion" name="direccion" placeholder="Ej: Av. Siempre Viva" required>
+                <label for="calleInput">Calle</label>
+                <input type="text" id="calleInput" name="calle" placeholder="Ej: Los Pinos" required>
 
-                <label for="comuna">Comuna</label>
-                <input type="text" id="comuna" name="comuna" placeholder="Ej: Santiago Centro" required>
+                <label for="numeroInput">Número</label>
+                <input type="text" id="numeroInput" name="numero" placeholder="Ej: 1234" required>
 
-                <label for="calle">Calle</label>
-                <input type="text" id="calle" name="calle" placeholder="Ej: Los Pinos" required>
+                <label for="latInput">Latitud (Ej: -33.4489)</label>
+                <input type="number" step="any" id="latInput" name="latInput" placeholder="-33.4489" required>
 
-                <label for="numero">Número</label>
-                <input type="text" id="numero" name="numero" placeholder="Ej: 1234" required>
+                <label for="lonInput">Longitud (Ej: -70.6693)</label>
+                <input type="number" step="any" id="lonInput" name="lonInput" placeholder="-70.6693" required>
 
                 <button type="submit" class="btn">Confirmar Dirección</button>
             </form>
@@ -341,161 +322,273 @@
         </div>
     </div>
 
+    <script src="api.js"></script>
     <script>
-        const botonesAgregar = document.querySelectorAll(".agregar");
-        const itemsCarrito = document.getElementById("itemsCarrito");
-        const totalElemento = document.getElementById("total");
-        const btnCheckout = document.getElementById("btnCheckout");
-
-        const modalDireccion = document.getElementById("modalDireccion");
-        const formDireccion = document.getElementById("formDireccion");
+        let carrito = {};
+        let productosDisponibles = [];
+        let ultimaDireccion = {};
         
+        const listaCatalogo = document.getElementById('listaCatalogo');
+        const itemsCarrito = document.getElementById('itemsCarrito');
+        const totalElemento = document.getElementById('total');
+        const btnCheckout = document.getElementById('btnCheckout');
+        
+        const modalDireccion = document.getElementById('modalDireccion');
+        const formDireccion = document.getElementById('formDireccion');
+        const calleInput = document.getElementById('calleInput');
+        const numeroInput = document.getElementById('numeroInput');
+        const latInput = document.getElementById('latInput');
+        const lonInput = document.getElementById('lonInput');
+
         const modalResumen = document.getElementById("modalResumen");
         const tablaResumen = document.getElementById("tablaResumen");
         const totalResumen = document.getElementById("totalResumen");
         const direccionMostrada = document.getElementById("direccionMostrada");
-        
         const btnWebpay = document.getElementById("btnWebpay");
         const btnTransferencia = document.getElementById("btnTransferencia");
-        
         const modalTransferencia = document.getElementById("modalTransferencia");
         const btnConfirmarTransferencia = document.getElementById("btnConfirmarTransferencia");
-
         const botonesCerrar = document.querySelectorAll(".cerrar");
-
-        let carrito = {}; 
-        let direccionConfirmada = "";
-
-       
-        function actualizarCarrito() {
-            itemsCarrito.innerHTML = "";
-            let total = 0;
-
-            for (let nombre in carrito) {
-                const item = carrito[nombre];
-                const subtotal = item.precio * item.cantidad;
-                total += subtotal;
-
-                const div = document.createElement("div");
-                div.classList.add("item-carrito");
-                div.innerHTML = `
-                    <span>${nombre} (x${item.cantidad})</span>
-                    <div class="controles">
-                        <button class="btn-peq restar" data-nombre="${nombre}">-</button>
-                        <span class="cantidad">${item.cantidad}</span>
-                        <button class="btn-peq sumar" data-nombre="${nombre}">+</button>
-                        <button class="btn-peq eliminar" data-nombre="${nombre}">X</button>
-                    </div>
-                `;
-                
-                div.querySelector(".sumar").addEventListener("click", () => {
-                    carrito[nombre].cantidad++;
-                    actualizarCarrito();
-                });
-                div.querySelector(".restar").addEventListener("click", () => {
-                    carrito[nombre].cantidad--;
-                    if (carrito[nombre].cantidad <= 0) delete carrito[nombre];
-                    actualizarCarrito();
-                });
-                div.querySelector(".eliminar").addEventListener("click", () => {
-                    delete carrito[nombre];
-                    actualizarCarrito();
-                });
-
-                itemsCarrito.appendChild(div);
+        
+        function verificarAutenticacion() {
+            const usuarioId = localStorage.getItem('usuarioId');
+            if (!usuarioId) {
+                alert('Debes iniciar sesión para acceder al catálogo.');
+                window.location.href = 'Inicio sesion.html';
+                return false;
             }
-
-            totalElemento.textContent = total.toLocaleString();
-            btnCheckout.disabled = Object.keys(carrito).length === 0;
-            btnCheckout.textContent = Object.keys(carrito).length === 0 ? "Carrito Vacío" : "Continuar al Pago";
+            return usuarioId;
         }
 
-        botonesAgregar.forEach(boton => {
-            boton.addEventListener("click", () => {
-                const producto = boton.parentElement;
-                const nombre = producto.getAttribute("data-nombre");
-                const precio = parseFloat(producto.getAttribute("data-precio")); 
+        const GET_PRODUCTOS_QUERY = `
+            query {
+                getProductos {
+                    id
+                    nombre
+                    descripcion
+                    precio
+                    stock
+                }
+            }
+        `;
 
-                if (carrito[nombre]) carrito[nombre].cantidad++;
-                else carrito[nombre] = { precio, cantidad: 1 };
-                actualizarCarrito();
-            });
-        });
-        
-        
-        btnCheckout.addEventListener("click", () => {
-            if (Object.keys(carrito).length === 0) return;
-            modalDireccion.style.display = "flex";
-        });
-        
-        
-        formDireccion.addEventListener("submit", function (e) {
-            e.preventDefault();
-            const d = document.getElementById("direccion").value;
-            const c = document.getElementById("comuna").value;
-            const ca = document.getElementById("calle").value;
-            const n = document.getElementById("numero").value;
+        async function cargarProductos() {
+            try {
+                const data = await graphqlRequest(GET_PRODUCTOS_QUERY);
+                productosDisponibles = data.getProductos;
+                renderizarProductos();
+            } catch (error) {
+                alert('Error al cargar productos: ' + error.message);
+            }
+        }
 
-            if (!d || !c || !ca || !n) {
-                alert(" Por favor completa todos los campos.");
-                return;
+        function renderizarProductos() {
+            let html = '';
+            if (productosDisponibles.length === 0) {
+                 html = '<p>No hay productos disponibles en este momento.</p>';
+            } else {
+                productosDisponibles.forEach(p => {
+                    html += `
+                        <div class="producto">
+                            <h4>${p.nombre}</h4>
+                            <p>${p.descripcion ? p.descripcion : 'Sin descripción'}</p>
+                            <p><strong>$${p.precio.toLocaleString('es-CL')}</strong></p>
+                            <p class="${p.stock > 0 ? 'stock-ok' : 'stock-cero'}">
+                                Stock: ${p.stock}
+                            </p>
+                            <button 
+                                class="btn btn-agregar" 
+                                data-id="${p.id}" 
+                                data-nombre="${p.nombre}" 
+                                data-precio="${p.precio}"
+                                data-stock="${p.stock}"
+                                ${p.stock === 0 ? 'disabled' : ''}
+                            >
+                                Añadir al Carrito
+                            </button>
+                        </div>
+                    `;
+                });
             }
 
-            direccionConfirmada = ` **Dirección de Envío:** ${d}, ${ca} ${n}, ${c}`;
-            alert(` Dirección confirmada:\n${d}, ${ca} ${n}, ${c}`);
+            listaCatalogo.innerHTML = html;
             
-            modalDireccion.style.display = "none";
-            mostrarResumen(); 
+            document.querySelectorAll('.btn-agregar').forEach(btn => {
+                btn.addEventListener('click', agregarACarrito);
+            });
+        }
+
+        function agregarACarrito(e) {
+            const id = e.target.getAttribute('data-id');
+            const nombre = e.target.getAttribute('data-nombre');
+            const precio = parseFloat(e.target.getAttribute('data-precio'));
+            const stock = parseInt(e.target.getAttribute('data-stock'));
+
+            if (carrito[id]) {
+                if (carrito[id].cantidad < stock) {
+                    carrito[id].cantidad++;
+                } else {
+                    alert(`No puedes agregar más de ${stock} unidades de ${nombre}.`);
+                }
+            } else {
+                carrito[id] = { id, nombre, precio, stock, cantidad: 1 };
+            }
+
+            actualizarCarrito();
+        }
+        
+        function actualizarCarrito() {
+            itemsCarrito.innerHTML = '';
+            let total = 0;
+            
+            if (Object.keys(carrito).length === 0) {
+                itemsCarrito.innerHTML = '<li style="text-align: center;">El carrito está vacío.</li>';
+                btnCheckout.disabled = true;
+            } else {
+                btnCheckout.disabled = false;
+                
+                for (const id in carrito) {
+                    const item = carrito[id];
+                    const subtotal = item.precio * item.cantidad;
+                    total += subtotal;
+
+                    const li = document.createElement("li");
+                    li.classList.add("item-carrito");
+                    li.innerHTML = `
+                        <span>${item.nombre} (x${item.cantidad})</span>
+                        <div class="controles">
+                            <button class="btn-peq restar" data-id="${id}">-</button>
+                            <button class="btn-peq sumar" data-id="${id}">+</button>
+                            <button class="btn-peq eliminar" data-id="${id}">X</button>
+                        </div>
+                    `;
+                    itemsCarrito.appendChild(li);
+                }
+
+                document.querySelectorAll('.sumar').forEach(btn => btn.addEventListener('click', (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    const item = carrito[id];
+                    if (item.cantidad < item.stock) item.cantidad++;
+                    actualizarCarrito();
+                }));
+                document.querySelectorAll('.restar').forEach(btn => btn.addEventListener('click', (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    carrito[id].cantidad--;
+                    if (carrito[id].cantidad <= 0) delete carrito[id];
+                    actualizarCarrito();
+                }));
+                document.querySelectorAll('.eliminar').forEach(btn => btn.addEventListener('click', (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    delete carrito[id];
+                    actualizarCarrito();
+                }));
+            }
+
+            totalElemento.textContent = total.toLocaleString('es-CL');
+        }
+
+        const CREAR_PEDIDO_MUTATION = `
+            mutation CrearPedido($clienteId: ID!, $items: [ItemPedidoInput!]!, $direccion: DireccionInput!) {
+                crearPedido(clienteId: $clienteId, items: $items, direccion: $direccion) {
+                    id
+                    total
+                    estado
+                }
+            }
+        `;
+
+        formDireccion.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const usuarioId = verificarAutenticacion();
+            if (!usuarioId) return;
+
+            const direccion = {
+                calle: calleInput.value.trim(),
+                numero: numeroInput.value.trim(),
+                lat: parseFloat(latInput.value),
+                lon: parseFloat(lonInput.value)
+            };
+            
+            if (isNaN(direccion.lat) || isNaN(direccion.lon)) {
+                 alert('Por favor, ingrese Latitud y Longitud válidas.');
+                 return;
+            }
+
+            const itemsInput = Object.values(carrito).map(item => ({
+                productoId: item.id,
+                cantidad: item.cantidad
+            }));
+
+            try {
+                const variables = {
+                    clienteId: usuarioId,
+                    items: itemsInput,
+                    direccion: direccion
+                };
+
+                const data = await graphqlRequest(CREAR_PEDIDO_MUTATION, variables);
+                
+                alert(`Pedido N°${data.crearPedido.id.slice(-6)} creado con éxito! Estado: ${data.crearPedido.estado}. Total: $${data.crearPedido.total.toLocaleString('es-CL')}`);
+                
+                carrito = {};
+                actualizarCarrito();
+                modalDireccion.style.display = 'none';
+                modalResumen.style.display = 'none';
+                modalTransferencia.style.display = 'none';
+                cargarProductos();
+
+            } catch (error) {
+                alert('Error al procesar el pedido: ' + error.message);
+            }
         });
 
-        
         function mostrarResumen() {
             tablaResumen.innerHTML = "";
             let total = 0;
+            const calle = calleInput.value;
+            const numero = numeroInput.value;
 
-            for (let nombre in carrito) {
-                const item = carrito[nombre];
+            for (let id in carrito) {
+                const item = carrito[id];
                 const subtotal = item.precio * item.cantidad;
                 total += subtotal;
 
                 const fila = document.createElement("tr");
                 fila.innerHTML = `
-                    <td>${nombre}</td>
+                    <td>${item.nombre}</td>
                     <td>${item.cantidad}</td>
-                    <td>$${item.precio.toLocaleString()}</td>
-                    <td>$${subtotal.toLocaleString()}</td>
+                    <td>$${item.precio.toLocaleString('es-CL')}</td>
+                    <td>$${subtotal.toLocaleString('es-CL')}</td>
                 `;
                 tablaResumen.appendChild(fila);
             }
 
-            totalResumen.textContent = total.toLocaleString();
-            direccionMostrada.innerHTML = direccionConfirmada; 
+            totalResumen.textContent = total.toLocaleString('es-CL');
+            direccionMostrada.textContent = `Dirección: ${calle} ${numero}. Coordenadas: ${latInput.value}, ${lonInput.value}`; 
             modalResumen.style.display = "flex";
         }
+
+        btnCheckout.addEventListener("click", () => {
+            if (Object.keys(carrito).length === 0) return;
+            modalDireccion.style.display = "flex";
+        });
         
-       
         btnWebpay.addEventListener("click", () => {
-            alert("Redirigiendo a pasarela Webpay...  (Simulación de pago exitoso)");
-            modalResumen.style.display = "none";
-            carrito = {};
-            actualizarCarrito();
+            alert("Redirigiendo a pasarela Webpay... (Simulación de pago exitoso)");
+            formDireccion.dispatchEvent(new Event('submit'));
         });
 
-        
         btnTransferencia.addEventListener("click", () => {
             modalResumen.style.display = "none";
             modalTransferencia.style.display = "flex";
         });
-        
-        
+
         btnConfirmarTransferencia.addEventListener("click", () => {
-            alert(" Comprobante adjuntado y Transferencia notificada. Su pedido será procesado al confirmar el pago. (Simulación)");
-            modalTransferencia.style.display = "none";
-            carrito = {};
-            actualizarCarrito();
+            alert("Comprobante adjuntado y Transferencia notificada. Su pedido será procesado al confirmar el pago. (Simulación)");
+            formDireccion.dispatchEvent(new Event('submit'));
         });
 
-        
         botonesCerrar.forEach(boton => {
             boton.addEventListener("click", () => {
                 const modalAttr = boton.getAttribute("data-modal");
@@ -511,7 +604,8 @@
             if (e.target === modalTransferencia) modalTransferencia.style.display = "none";
         });
         
-        
+        verificarAutenticacion();
+        cargarProductos();
         actualizarCarrito();
     </script>
 </body>

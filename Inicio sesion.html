@@ -72,25 +72,83 @@
 
 <body>
     <div class="wrapper">
-        <form action="">
+        <form id="loginForm">
             <h1>Inicio sesion</h1>
 
             <div class="input-box">
-                <input type="text" placeholder="Usuario" required>
+                <input type="email" id="emailLogin" placeholder="Email" required>
             </div>
 
             <div class="input-box">
-                <input type="password" placeholder="Contraseña" required>
+                <input type="password" id="passLogin" placeholder="Contraseña" required>
             </div>
 
             <div class="Recuperacion-contraseña">
-                <a href="#">recuperar contraseña</a>
+                <a href="Recuperacion contraseña.html">recuperar contraseña</a>
             </div>
 
             <button type="submit" class="btn">Iniciar sesion</button>
             <button type="button" class="btn" onclick="window.location.href='registro usuario.html'">Registrarte</button>
         </form>
     </div>
+    <script src="api.js"></script>
+
+    <script>
+        const form = document.getElementById('loginForm');
+        
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault(); // Detiene el envío normal
+
+            const email = document.getElementById('emailLogin').value.trim();
+            const pass = document.getElementById('passLogin').value.trim();
+
+            // Query para obtener todos los usuarios y buscar el login en el frontend
+            // Esto es más simple para un proyecto universitario que crear un resolver de login
+            const GET_USUARIOS_QUERY = `
+                query {
+                    getUsuarios {
+                        id
+                        email
+                        pass
+                        isAdmin
+                    }
+                }
+            `;
+
+            try {
+                
+                const data = await graphqlRequest(GET_USUARIOS_QUERY);
+                
+                
+                const usuarioLogueado = data.getUsuarios.find(u => u.email === email && u.pass === pass);
+                
+                if (usuarioLogueado) {
+                    
+                    localStorage.setItem('usuarioId', usuarioLogueado.id);
+                    localStorage.setItem('isAdmin', usuarioLogueado.isAdmin);
+                    localStorage.setItem('usuarioNombre', usuarioLogueado.nombre);
+
+                    alert(' Inicio de sesión exitoso. Bienvenido, ' + usuarioLogueado.nombre);
+
+                    
+                    if (usuarioLogueado.isAdmin) {
+                        window.location.href = 'HubAdmin.html'; 
+                    } else {
+                        window.location.href = 'Catalogo.html'; 
+                    }
+
+                } else {
+                    alert(' Credenciales incorrectas. Verifique Email o Contraseña.');
+                }
+
+            } catch (error) {
+                alert(' Error al intentar iniciar sesión: ' + error.message);
+                console.error('Detalles del error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
 </body>
 
 </html>
